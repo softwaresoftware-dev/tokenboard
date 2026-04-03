@@ -1,6 +1,6 @@
 # CLAUDE.md — tokenboard
 
-Token usage leaderboard plugin for Claude Code. Calculates equivalent API cost from `~/.claude/stats-cache.json` and uploads to the public leaderboard at tokenboard.nov.solutions.
+Token usage leaderboard plugin for Claude Code. Calculates equivalent API cost from `~/.claude/stats-cache.json` and uploads to the public leaderboard at tokenboard.softwaresoftware.dev.
 
 ## Quick Reference
 
@@ -13,7 +13,7 @@ Token usage leaderboard plugin for Claude Code. Calculates equivalent API cost f
 
 - Python 3.10+, FastMCP
 - Reads `~/.claude/stats-cache.json` (local, read-only)
-- Uploads to `https://tokenboard.nov.solutions/api`
+- Uploads to `https://tokenboard.softwaresoftware.dev/api`
 - Local config at `~/.tokenboard/config.json`
 
 ## How It Works

@@ -80,7 +80,7 @@ def tokenboard_register(display_name: str) -> str:
     return (
         f"Registered as '{display_name}'{rank_msg}\n"
         f"Your stats will be uploaded automatically on each session.\n"
-        f"View the leaderboard at https://tokenboard.nov.solutions"
+        f"View the leaderboard at https://tokenboard.softwaresoftware.dev"
     )
 
 
@@ -116,7 +116,7 @@ def tokenboard_status() -> str:
         f"Messages: {stats['total_messages']:,}",
         f"First session: {stats.get('first_session_date', 'unknown')}",
         f"Last upload: {config.get('last_upload_date', 'never')}",
-        f"Leaderboard: https://tokenboard.nov.solutions",
+        f"Leaderboard: https://tokenboard.softwaresoftware.dev",
     ]
     return "\n".join(lines)
 

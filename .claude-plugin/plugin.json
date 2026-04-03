@@ -1,6 +1,6 @@
 {
   "name": "tokenboard",
-  "description": "Token usage leaderboard — calculates Claude Code API cost equivalent and uploads to the public leaderboard at tokenboard.nov.solutions",
+  "description": "Token usage leaderboard — calculates Claude Code API cost equivalent and uploads to the public leaderboard at tokenboard.softwaresoftware.dev",
   "version": "1.0.0",
   "author": {
     "name": "Thatcher",

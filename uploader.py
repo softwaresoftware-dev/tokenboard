@@ -4,7 +4,7 @@ import json
 import urllib.request
 import urllib.error
 
-DEFAULT_API_BASE = "https://tokenboard.nov.solutions"
+DEFAULT_API_BASE = "https://tokenboard.softwaresoftware.dev"
 USER_AGENT = "tokenboard-plugin/1.0"
 
 

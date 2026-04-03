@@ -15,7 +15,7 @@ description: Register for the tokenboard leaderboard
    - Their display name
    - Their current rank
    - That stats will upload automatically on every future session
-   - Link to the leaderboard: https://tokenboard.nov.solutions
+   - Link to the leaderboard: https://tokenboard.softwaresoftware.dev
 
 4. If the name is taken (409 error), ask them to pick a different name and retry.
 
