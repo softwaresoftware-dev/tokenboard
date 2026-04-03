@@ -11,8 +11,8 @@
   "keywords": ["tokens", "usage", "leaderboard", "stats", "cost"],
   "mcpServers": {
     "tokenboard": {
-      "command": "python",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/server.py"],
+      "command": "uv",
+      "args": ["run", "--directory", "${CLAUDE_PLUGIN_ROOT}", "python", "server.py"],
       "cwd": "${CLAUDE_PLUGIN_ROOT}"
     }
   }

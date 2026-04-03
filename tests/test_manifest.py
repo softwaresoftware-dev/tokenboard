@@ -30,5 +30,5 @@ def test_manifest_mcp_server():
     with open(MANIFEST_PATH) as f:
         data = json.load(f)
     server = data["mcpServers"]["tokenboard"]
-    assert server["command"] == "python"
-    assert "server.py" in server["args"][0]
+    assert server["command"] == "uv"
+    assert "server.py" in " ".join(server["args"])
