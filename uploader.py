@@ -42,6 +42,9 @@ def upload(stats: dict, api_key: str, api_base: str = DEFAULT_API_BASE) -> dict:
         "total_messages": stats["total_messages"],
         "first_session_date": stats.get("first_session_date"),
         "stats_computed_date": stats.get("stats_computed_date"),
+        "subscription_tier": stats.get("subscription_tier", "unknown"),
+        "subscription_label": stats.get("subscription_label", "Unknown"),
+        "monthly_cost": stats.get("monthly_cost", 0),
     }
     data = json.dumps(payload).encode()
     req = urllib.request.Request(

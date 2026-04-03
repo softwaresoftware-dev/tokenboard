@@ -13,6 +13,13 @@ PRICING = {
 }
 
 STATS_PATH = os.path.expanduser("~/.claude/stats-cache.json")
+CREDENTIALS_PATH = os.path.expanduser("~/.claude/.credentials.json")
+
+SUBSCRIPTION_TIERS = {
+    "pro": {"label": "Pro", "monthly_cost": 20},
+    "max": {"label": "Max", "monthly_cost": 100},
+    "max_5x": {"label": "Max (5x)", "monthly_cost": 200},
+}
 
 
 def _match_pricing(model_id: str):
@@ -81,6 +88,8 @@ def calculate(path: str = STATS_PATH) -> dict:
             total_cost += model_cost
             cost_by_model[model_id] = round(model_cost, 2)
 
+    sub = get_subscription_tier()
+
     return {
         "total_tokens": total_input + total_output + total_cache_read + total_cache_write,
         "total_input_tokens": total_input,
@@ -93,4 +102,28 @@ def calculate(path: str = STATS_PATH) -> dict:
         "total_messages": data.get("totalMessages", 0),
         "first_session_date": data.get("firstSessionDate"),
         "stats_computed_date": data.get("lastComputedDate"),
+        "subscription_tier": sub["tier"],
+        "subscription_label": sub["label"],
+        "monthly_cost": sub["monthly_cost"],
     }
+
+
+def get_subscription_tier(path: str = CREDENTIALS_PATH) -> dict:
+    """Read subscription tier from Claude credentials."""
+    try:
+        with open(path) as f:
+            data = json.load(f)
+        oauth = data.get("claudeAiOauth", {})
+        sub_type = oauth.get("subscriptionType", "unknown")
+        rate_tier = oauth.get("rateLimitTier", "")
+
+        # Detect 5x from rate limit tier
+        if "5x" in rate_tier:
+            tier_key = "max_5x"
+        else:
+            tier_key = sub_type
+
+        info = SUBSCRIPTION_TIERS.get(tier_key, {"label": sub_type.title(), "monthly_cost": 0})
+        return {"tier": tier_key, "label": info["label"], "monthly_cost": info["monthly_cost"]}
+    except (FileNotFoundError, json.JSONDecodeError, KeyError):
+        return {"tier": "unknown", "label": "Unknown", "monthly_cost": 0}
