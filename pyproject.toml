@@ -1,0 +1,10 @@
+[project]
+name = "tokenboard"
+version = "1.0.0"
+description = "Claude Code token usage leaderboard plugin"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+dependencies = ["mcp[cli]"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
