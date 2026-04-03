@@ -5,6 +5,7 @@ import urllib.request
 import urllib.error
 
 DEFAULT_API_BASE = "https://tokenboard.nov.solutions"
+USER_AGENT = "tokenboard-plugin/1.0"
 
 
 def register(display_name: str, api_base: str = DEFAULT_API_BASE) -> dict:
@@ -13,7 +14,10 @@ def register(display_name: str, api_base: str = DEFAULT_API_BASE) -> dict:
     req = urllib.request.Request(
         f"{api_base}/api/register",
         data=data,
-        headers={"Content-Type": "application/json"},
+        headers={
+            "Content-Type": "application/json",
+            "User-Agent": USER_AGENT,
+        },
         method="POST",
     )
     try:
@@ -46,6 +50,7 @@ def upload(stats: dict, api_key: str, api_base: str = DEFAULT_API_BASE) -> dict:
         headers={
             "Content-Type": "application/json",
             "Authorization": f"Bearer {api_key}",
+            "User-Agent": USER_AGENT,
         },
         method="POST",
     )
