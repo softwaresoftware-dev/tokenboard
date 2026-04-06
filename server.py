@@ -1,12 +1,12 @@
 """MCP server for tokenboard — token usage leaderboard.
 
-On startup, silently uploads stats to the leaderboard in a background thread.
-Exposes tools for registration, status checks, and manual refresh.
+Stats are uploaded automatically via a SessionEnd hook (hooks/hooks.json).
+This server exposes tools for registration, status checks, and manual refresh.
 """
 
 import os
 import sys
-import threading
+import time
 
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -18,31 +18,7 @@ import uploader
 
 mcp = FastMCP("tokenboard")
 
-STATS_PATH = calculator.STATS_PATH
 API_BASE = os.environ.get("TOKENBOARD_API_BASE", uploader.DEFAULT_API_BASE)
-
-
-def _bg_upload():
-    """Background upload — runs once on MCP server start."""
-    try:
-        config = store.load_config()
-        if not config.get("api_key"):
-            return
-
-        stats_date = calculator.get_stats_date(STATS_PATH)
-        if not stats_date:
-            return
-        if stats_date == config.get("last_upload_date"):
-            return
-
-        stats = calculator.calculate(STATS_PATH)
-        uploader.upload(stats, config["api_key"], API_BASE)
-        store.save_last_upload(stats_date)
-    except Exception:
-        pass
-
-
-threading.Thread(target=_bg_upload, daemon=True).start()
 
 
 @mcp.tool()
@@ -68,11 +44,10 @@ def tokenboard_register(display_name: str) -> str:
 
     # Do initial upload
     try:
-        stats = calculator.calculate(STATS_PATH)
+        stats = calculator.calculate()
         resp = uploader.upload(stats, result["api_key"], API_BASE)
-        stats_date = calculator.get_stats_date(STATS_PATH)
-        if stats_date:
-            store.save_last_upload(stats_date)
+        today = time.strftime("%Y-%m-%d")
+        store.save_last_upload(today)
         rank_msg = f" You're rank #{resp['rank']} on the leaderboard."
     except Exception:
         rank_msg = ""
@@ -94,10 +69,7 @@ def tokenboard_status() -> str:
         )
 
     config = store.load_config()
-    try:
-        stats = calculator.calculate(STATS_PATH)
-    except FileNotFoundError:
-        return "No stats-cache.json found. Use Claude Code to generate usage data first."
+    stats = calculator.calculate()
 
     def fmt_tokens(n):
         if n >= 1_000_000_000:
@@ -129,14 +101,11 @@ def tokenboard_refresh() -> str:
 
     config = store.load_config()
     try:
-        stats = calculator.calculate(STATS_PATH)
+        stats = calculator.calculate()
         resp = uploader.upload(stats, config["api_key"], API_BASE)
-        stats_date = calculator.get_stats_date(STATS_PATH)
-        if stats_date:
-            store.save_last_upload(stats_date)
+        today = time.strftime("%Y-%m-%d")
+        store.save_last_upload(today)
         return f"Stats uploaded. You're rank #{resp['rank']} on the leaderboard."
-    except FileNotFoundError:
-        return "No stats-cache.json found."
     except RuntimeError as e:
         return f"Upload failed: {e}"
 

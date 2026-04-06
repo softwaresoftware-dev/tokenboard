@@ -1,7 +1,12 @@
-"""Tests for the token cost calculator."""
+"""Tests for the token cost calculator (pricing helpers and aggregator delegation)."""
+
+import json
+import os
 
 import pytest
-from calculator import calculate, get_stats_date, _match_pricing, _cost_for_model
+
+import aggregator
+from calculator import _cost_for_model, _match_pricing, calculate, get_stats_date
 
 
 def test_match_pricing_opus_45():
@@ -56,48 +61,35 @@ def test_get_stats_date_missing():
     assert get_stats_date("/nonexistent/path") is None
 
 
-def test_calculate_totals(stats_file):
-    result = calculate(stats_file)
-    assert result["total_sessions"] == 478
-    assert result["total_messages"] == 90329
-    assert result["first_session_date"] == "2026-01-05T12:14:15.211Z"
-    assert result["stats_computed_date"] == "2026-04-02"
+def test_calculate_delegates_to_aggregator(tmp_path, monkeypatch):
+    """calculator.calculate() delegates to aggregator.calculate()."""
+    # Set up aggregator with a fake stats-cache and no JSONL files
+    projects_dir = str(tmp_path / "projects")
+    os.makedirs(projects_dir)
+    monkeypatch.setattr(aggregator, "PROJECTS_DIR", projects_dir)
 
+    cache_path = str(tmp_path / "stats-cache.json")
+    cache_data = {
+        "version": 3,
+        "lastComputedDate": "2099-12-31",
+        "modelUsage": {
+            "claude-opus-4-6": {
+                "inputTokens": 1_000_000,
+                "outputTokens": 1_000_000,
+                "cacheReadInputTokens": 0,
+                "cacheCreationInputTokens": 0,
+            },
+        },
+        "totalSessions": 42,
+        "totalMessages": 500,
+        "firstSessionDate": "2026-01-05T12:00:00.000Z",
+    }
+    with open(cache_path, "w") as f:
+        json.dump(cache_data, f)
+    monkeypatch.setattr(aggregator, "STATS_CACHE_PATH", cache_path)
 
-def test_calculate_tokens(stats_file):
-    result = calculate(stats_file)
-    # All token fields should be positive
-    assert result["total_tokens"] > 0
-    assert result["total_input_tokens"] > 0
-    assert result["total_output_tokens"] > 0
-    assert result["total_cache_read_tokens"] > 0
-    assert result["total_cache_write_tokens"] > 0
-    # Total should be sum of parts
-    assert result["total_tokens"] == (
-        result["total_input_tokens"]
-        + result["total_output_tokens"]
-        + result["total_cache_read_tokens"]
-        + result["total_cache_write_tokens"]
-    )
-
-
-def test_calculate_cost(stats_file):
-    result = calculate(stats_file)
-    assert result["total_cost_usd"] > 0
-    assert len(result["cost_by_model"]) == 5
-    # Sum of model costs should match total
-    model_sum = sum(result["cost_by_model"].values())
-    assert model_sum == pytest.approx(result["total_cost_usd"], rel=0.01)
-
-
-def test_calculate_empty(empty_stats_file):
-    result = calculate(empty_stats_file)
-    assert result["total_tokens"] == 0
-    assert result["total_cost_usd"] == 0.0
-    assert result["cost_by_model"] == {}
-    assert result["total_sessions"] == 0
-
-
-def test_calculate_file_not_found():
-    with pytest.raises(FileNotFoundError):
-        calculate("/nonexistent/path")
+    result = calculate()
+    assert result["total_sessions"] == 42
+    assert result["total_messages"] == 500
+    assert result["total_cost_usd"] == pytest.approx(90.0, rel=0.01)
+    assert result["first_session_date"] == "2026-01-05T12:00:00.000Z"

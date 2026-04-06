@@ -1,4 +1,8 @@
-"""Token cost calculation from Claude Code stats-cache.json."""
+"""Token cost calculation from Claude Code stats.
+
+Uses the aggregator for fresh data: stats-cache.json baseline merged with
+live JSONL session data. Also exports pricing helpers used by the aggregator.
+"""
 
 import json
 import os
@@ -54,58 +58,12 @@ def get_stats_date(path: str = STATS_PATH) -> str | None:
 def calculate(path: str = STATS_PATH) -> dict:
     """Calculate aggregate token usage and equivalent API cost.
 
-    Returns dict with:
-        total_tokens, total_cost_usd, cost_by_model,
-        total_sessions, total_messages, first_session_date,
-        stats_computed_date
+    Delegates to the aggregator for fresh data: stats-cache.json baseline
+    merged with live JSONL session files.
     """
-    with open(path) as f:
-        data = json.load(f)
+    import aggregator
 
-    model_usage = data.get("modelUsage", {})
-
-    total_input = 0
-    total_output = 0
-    total_cache_read = 0
-    total_cache_write = 0
-    total_cost = 0.0
-    cost_by_model = {}
-
-    for model_id, usage in model_usage.items():
-        inp = usage.get("inputTokens", 0)
-        out = usage.get("outputTokens", 0)
-        cache_read = usage.get("cacheReadInputTokens", 0)
-        cache_write = usage.get("cacheCreationInputTokens", 0)
-
-        total_input += inp
-        total_output += out
-        total_cache_read += cache_read
-        total_cache_write += cache_write
-
-        pricing = _match_pricing(model_id)
-        if pricing:
-            model_cost = _cost_for_model(usage, pricing)
-            total_cost += model_cost
-            cost_by_model[model_id] = round(model_cost, 2)
-
-    sub = get_subscription_tier()
-
-    return {
-        "total_tokens": total_input + total_output + total_cache_read + total_cache_write,
-        "total_input_tokens": total_input,
-        "total_output_tokens": total_output,
-        "total_cache_read_tokens": total_cache_read,
-        "total_cache_write_tokens": total_cache_write,
-        "total_cost_usd": round(total_cost, 2),
-        "cost_by_model": cost_by_model,
-        "total_sessions": data.get("totalSessions", 0),
-        "total_messages": data.get("totalMessages", 0),
-        "first_session_date": data.get("firstSessionDate"),
-        "stats_computed_date": data.get("lastComputedDate"),
-        "subscription_tier": sub["tier"],
-        "subscription_label": sub["label"],
-        "monthly_cost": sub["monthly_cost"],
-    }
+    return aggregator.calculate()
 
 
 def get_subscription_tier(path: str = CREDENTIALS_PATH) -> dict:

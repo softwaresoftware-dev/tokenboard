@@ -1,0 +1,16 @@
+{
+  "description": "Upload token stats to leaderboard on session end",
+  "hooks": {
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/upload_hook.py",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}
