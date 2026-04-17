@@ -7,12 +7,24 @@
     "url": "https://github.com/ThatcherT"
   },
   "repository": "https://github.com/ThatcherT/tokenboard",
-  "license": "MIT",
-  "keywords": ["tokens", "usage", "leaderboard", "stats", "cost"],
+  "license": "Proprietary",
+  "keywords": [
+    "tokens",
+    "usage",
+    "leaderboard",
+    "stats",
+    "cost"
+  ],
   "mcpServers": {
     "tokenboard": {
       "command": "uv",
-      "args": ["run", "--directory", "${CLAUDE_PLUGIN_ROOT}", "python", "server.py"],
+      "args": [
+        "run",
+        "--directory",
+        "${CLAUDE_PLUGIN_ROOT}",
+        "python",
+        "server.py"
+      ],
       "cwd": "${CLAUDE_PLUGIN_ROOT}"
     }
   }
