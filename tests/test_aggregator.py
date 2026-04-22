@@ -309,8 +309,9 @@ class TestCalculate:
             _make_assistant_entry("claude-opus-4-6", 1_000_000, 1_000_000),
         ])
         result = aggregator.calculate()
-        assert result["total_cost_usd"] == pytest.approx(90.0, rel=0.01)
-        assert result["cost_by_model"]["claude-opus-4-6"] == pytest.approx(90.0, rel=0.01)
+        # opus-4-6: 1M input @ $5 + 1M output @ $25 = $30
+        assert result["total_cost_usd"] == pytest.approx(30.0, rel=0.01)
+        assert result["cost_by_model"]["claude-opus-4-6"] == pytest.approx(30.0, rel=0.01)
 
     def test_token_sum(self, agg_env):
         _make_session(agg_env, "proj1", "sess1", [
@@ -340,5 +341,5 @@ class TestCalculate:
             last_computed="2099-12-31",
         )
         result = aggregator.calculate()
-        assert result["total_cost_usd"] == pytest.approx(90.0, rel=0.01)
+        assert result["total_cost_usd"] == pytest.approx(30.0, rel=0.01)
         assert result["total_sessions"] == 5

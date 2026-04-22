@@ -17,6 +17,18 @@ def test_match_pricing_opus_46():
     assert _match_pricing("claude-opus-4-6") is not None
 
 
+def test_match_pricing_opus_47():
+    assert _match_pricing("claude-opus-4-7") is not None
+
+
+def test_match_pricing_opus_4_base_vs_4_5():
+    # Base opus-4 and opus-4.1 use the old $15/$75 rates;
+    # opus-4.5+ uses the new $5/$25 rates. Prefix ordering must not
+    # let "claude-opus-4" swallow "claude-opus-4-5-*".
+    assert _match_pricing("claude-opus-4-20250514") == (15.00, 75.00, 1.50, 18.75)
+    assert _match_pricing("claude-opus-4-5-20251101") == (5.00, 25.00, 0.50, 6.25)
+
+
 def test_match_pricing_sonnet():
     assert _match_pricing("claude-sonnet-4-5-20250929") is not None
 
@@ -48,9 +60,9 @@ def test_cost_for_model_haiku():
         "cacheReadInputTokens": 1_000_000,
         "cacheCreationInputTokens": 1_000_000,
     }
-    pricing = (0.80, 4.00, 0.08, 1.00)
+    pricing = (1.00, 5.00, 0.10, 1.25)
     cost = _cost_for_model(usage, pricing)
-    assert cost == pytest.approx(0.8 + 4.0 + 0.08 + 1.0)
+    assert cost == pytest.approx(1.0 + 5.0 + 0.10 + 1.25)
 
 
 def test_get_stats_date(stats_file):
@@ -91,5 +103,6 @@ def test_calculate_delegates_to_aggregator(tmp_path, monkeypatch):
     result = calculate()
     assert result["total_sessions"] == 42
     assert result["total_messages"] == 500
-    assert result["total_cost_usd"] == pytest.approx(90.0, rel=0.01)
+    # opus-4-6: 1M input @ $5 + 1M output @ $25 = $30
+    assert result["total_cost_usd"] == pytest.approx(30.0, rel=0.01)
     assert result["first_session_date"] == "2026-01-05T12:00:00.000Z"

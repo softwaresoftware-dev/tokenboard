@@ -7,13 +7,21 @@ live JSONL session data. Also exports pricing helpers used by the aggregator.
 import json
 import os
 
-# Per-million-token pricing by model prefix
+# Per-million-token pricing by model prefix.
+# Format: (input, output, cache_read, cache_write_5m).
+# Longer/more specific prefixes must come before shorter ones — _match_pricing
+# iterates in insertion order and returns the first startswith match.
 PRICING = {
-    "claude-opus-4-5": (15.00, 75.00, 1.50, 18.75),
-    "claude-opus-4-6": (15.00, 75.00, 1.50, 18.75),
-    "claude-sonnet-4-5": (3.00, 15.00, 0.30, 3.75),
+    "claude-opus-4-7": (5.00, 25.00, 0.50, 6.25),
+    "claude-opus-4-6": (5.00, 25.00, 0.50, 6.25),
+    "claude-opus-4-5": (5.00, 25.00, 0.50, 6.25),
+    "claude-opus-4-1": (15.00, 75.00, 1.50, 18.75),
+    "claude-opus-4": (15.00, 75.00, 1.50, 18.75),
     "claude-sonnet-4-6": (3.00, 15.00, 0.30, 3.75),
-    "claude-haiku-4-5": (0.80, 4.00, 0.08, 1.00),
+    "claude-sonnet-4-5": (3.00, 15.00, 0.30, 3.75),
+    "claude-sonnet-4": (3.00, 15.00, 0.30, 3.75),
+    "claude-haiku-4-5": (1.00, 5.00, 0.10, 1.25),
+    "claude-haiku-3-5": (0.80, 4.00, 0.08, 1.00),
 }
 
 STATS_PATH = os.path.expanduser("~/.claude/stats-cache.json")
