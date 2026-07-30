@@ -1,7 +1,7 @@
 {
   "name": "tokenboard",
   "description": "Token usage leaderboard \u2014 calculates Claude Code API cost equivalent and uploads to the public leaderboard at tokenboard.softwaresoftware.dev",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": {
     "name": "NOV LLC",
     "url": "https://github.com/softwaresoftware-dev"

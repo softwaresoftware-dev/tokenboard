@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/upload_hook.py",
+            "command": "uv run --directory \"${CLAUDE_PLUGIN_ROOT}\" python upload_hook.py",
             "timeout": 15
           }
         ]
